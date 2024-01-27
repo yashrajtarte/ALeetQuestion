@@ -1,48 +1,54 @@
+import java.util.AbstractList;
+
 class Solution {
+    private List<List<Integer>> res;
+
     public List<List<Integer>> threeSum(int[] nums) {
-        List<List<Integer>> ans = new ArrayList<>();
+        return new AbstractList<List<Integer>>() {
 
-        // Sort the array
-        Arrays.sort(nums);
-
-        for (int i = 0; i < nums.length - 2; i++) {
-            // Skip duplicate elements for i
-            if (i > 0 && nums[i] == nums[i - 1]) {
-                continue;
+            public List<Integer> get(int index) {
+                init();
+                return res.get(index);
             }
 
-            int j = i + 1;
-            int k = nums.length - 1;
+            public int size() {
+                init();
+                return res.size();
+            }
 
-            while (j < k) {
-                int sum = nums[i] + nums[j] + nums[k];
+            private void init() {
+                if (res != null) return;
+                Arrays.sort(nums);
+                ArrayList<List<Integer>> ans = new ArrayList<>();
 
-                if (sum == 0) {
-                    // Found a triplet with zero sum
-                    ans.add(Arrays.asList(nums[i], nums[j], nums[k]));
+                for (int i = 0; i < nums.length; i++) {
+                    if (i != 0 && nums[i] == nums[i - 1]) continue; // Avoid repetition
+                    twoSum(i, ans);
+                }
+                res = ans;
+            }
 
-                    // Skip duplicate elements for j
-                    while (j < k && nums[j] == nums[j + 1]) {
-                        j++;
+            private void twoSum(int i, ArrayList<List<Integer>> ans) {
+                int target = -nums[i], left = i + 1, right = nums.length - 1;
+
+                while (left < right) {
+                    //Skip repeating second number
+                    if (i + 1 < left && nums[left - 1] == nums[left]) {
+                        left++;
+                        continue;
                     }
-
-                    // Skip duplicate elements for k
-                    while (j < k && nums[k] == nums[k - 1]) {
-                        k--;
+                    if (nums[left] + nums[right] > target) right--;
+                    else if (nums[left] + nums[right] < target) left++;
+                    else {
+                        ArrayList<Integer> l = new ArrayList<>(3); // 3 is the size of list
+                        l.add(nums[i]);
+                        l.add(nums[left]);
+                        l.add(nums[right]);
+                        ans.add(l);
+                        left++; // move to next pair
                     }
-
-                    // Move the pointers
-                    j++;
-                    k--;
-                } else if (sum < 0) {
-                    // Sum is less than zero, increment j to increase the sum
-                    j++;
-                } else {
-                    // Sum is greater than zero, decrement k to decrease the sum
-                    k--;
                 }
             }
-        }
-        return ans;
+        };
     }
 }
